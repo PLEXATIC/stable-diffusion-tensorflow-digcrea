@@ -113,9 +113,8 @@ class StableDiffusion:
             timesteps = timesteps[: int(len(timesteps)*input_image_strength)]
 
         # Diffusion stage
-        progbar = tqdm(list(enumerate(timesteps))[::-1])
+        progbar = list(enumerate(timesteps))[::-1]
         for index, timestep in progbar:
-            progbar.set_description(f"{index:3d} {timestep:3d}")
             e_t = self.get_model_output(
                 latent,
                 timestep,
