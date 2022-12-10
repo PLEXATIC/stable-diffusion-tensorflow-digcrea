@@ -27,6 +27,8 @@ class StableDiffusion:
         self.decoder = decoder
         self.encoder = encoder
 
+        self.seed = 0
+
         if jit_compile:
             self.text_encoder.compile(jit_compile=True)
             self.diffusion_model.compile(jit_compile=True)
@@ -51,6 +53,7 @@ class StableDiffusion:
         input_image_strength=0.5,
     ):
         # Tokenize prompt (i.e. starting context)
+        self.seed = seed
         inputs = self.tokenizer.encode(prompt)
         assert len(inputs) < 77, "Prompt is too long (should be < 77 tokens)"
         phrase = inputs + [49407] * (77 - len(inputs))
@@ -156,7 +159,8 @@ class StableDiffusion:
     def add_noise(self, x , t , noise=None ):
         batch_size,w,h = x.shape[0] , x.shape[1] , x.shape[2]
         if noise is None:
-            noise = tf.random.normal((batch_size,w,h,4), dtype=self.dtype)
+            noise = np.random.RandomState(self.seed).normal(size=(batch_size, w,h, 4))
+            #noise = tf.random.normal((batch_size,w,h,4), dtype=self.dtype)
         sqrt_alpha_prod = _ALPHAS_CUMPROD[t] ** 0.5
         sqrt_one_minus_alpha_prod = (1 - _ALPHAS_CUMPROD[t]) ** 0.5
 
